@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>MeDoct — Prototype (Static)</title>
+  <style>
+    :root{
+      --indigo:#4f46e5; --green:#16a34a; --bg:#f7fafc; --muted:#6b7280;
+      --card:#ffffff; --radius:12px;
+    }
+    *{box-sizing:border-box}
+    body{font-family:Arial, sans-serif; margin:0; background:var(--bg); color:#111;}
+    a{color:var(--indigo); text-decoration:none}
+    header{background:#fff; box-shadow:0 1px 0 rgba(0,0,0,0.04)}
+    .container{max-width:1100px;margin:0 auto;padding:18px;}
+    .brand{font-weight:700;color:var(--indigo); font-size:20px}
+    nav{display:flex;gap:12px;align-items:center}
+    .btn{padding:8px 12px;border-radius:8px;cursor:pointer;display:inline-block}
+    .btn-primary{background:var(--indigo);color:#fff}
+    .btn-ghost{background:#fff;border:1px solid #ddd}
+    .grid{display:grid;gap:16px}
+    .grid-3{grid-template-columns:repeat(3,1fr)}
+    .card{background:var(--card);padding:16px;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,0.05)}
+    .muted{color:var(--muted);font-size:14px}
+    input,textarea{width:100%;padding:8px;border:1px solid #ccc;border-radius:8px}
+    footer{text-align:center;padding:18px;background:#fff;border-top:1px solid #eee;margin-top:20px;color:#777}
+    .chat-box{height:250px;overflow:auto;background:#fefefe;border:1px solid #ddd;border-radius:10px;padding:10px;display:flex;gap:8px;flex-direction:column}
+    .msg{padding:8px;border-radius:8px;max-width:70%}
+    .msg.user{align-self:flex-end;background:#e0e7ff}
+    .msg.doc{align-self:flex-start;background:#f3f4f6}
+    .hidden{display:none}
+  </style>
+</head>
+
+<body>
+<header>
+  <div class="container" style="display:flex;justify-content:space-between;align-items:center">
+    <div style="display:flex;align-items:center;gap:15px">
+      <div class="brand">Me!Doct</div>
+      <nav>
+        <a href="#/">Home</a>
+        <a href="#/doctors">Dokter</a>
+        <a href="#/about">Tentang</a>
+      </nav>
+    </div>
+    <div>
+      <span id="greeting" class="muted"></span>
+      <button id="btn-dashboard" class="btn hidden">Dashboard</button>
+      <button id="btn-login" class="btn btn-primary">Login</button>
+      <button id="btn-logout" class="btn btn-ghost hidden">Logout</button>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="app"></main>
+
+<footer>© MeDoct Prototype — Untuk keperluan akademik</footer>
+
+<script>
+/* DATA DOKTER */
+const doctors=[
+  {id:"d1",name:"dr. Adi Prasetyo",specialty:"Umum",rating:4.7,bio:"Pengalaman 10 tahun."},
+  {id:"d2",name:"dr. Siti Nur A",specialty:"Kardiologi",rating:4.9,bio:"Ahli jantung."},
+  {id:"d3",name:"dr. Budi Hartono",specialty:"Anak",rating:4.8,bio:"Ramah anak."}
+];
+
+/* UTIL */
+function $(s){return document.querySelector(s);}
+const app=$("#app");
+
+function getUser(){return JSON.parse(localStorage.getItem("user")||"null");}
+function setUser(u){localStorage.setItem("user",JSON.stringify(u));renderHeader();}
+
+/* HEADER */
+const btnLogin=$("#btn-login");
+const btnLogout=$("#btn-logout");
+const btnDashboard=$("#btn-dashboard");
+const greet=$("#greeting");
+
+btnLogin.onclick=()=>location.hash="#/login";
+btnLogout.onclick=()=>{localStorage.removeItem("user");renderHeader();location.hash="#/";};
+btnDashboard.onclick=()=>location.hash="#/dashboard";
+
+function renderHeader(){
+  const u=getUser();
+  if(u){
+    greet.textContent="Halo, "+u.name+"   ";
+    btnLogin.classList.add("hidden");
+    btnLogout.classList.remove("hidden");
+    btnDashboard.classList.remove("hidden");
+  } else {
+    greet.textContent="";
+    btnLogin.classList.remove("hidden");
+    btnLogout.classList.add("hidden");
+    btnDashboard.classList.add("hidden");
+  }
+}
+
+/* HALAMAN */
+function home(){
+  app.innerHTML=`
+    <div class="card">
+      <h1>Konsultasi Dokter Online</h1>
+      <p class="muted">Chat & Booking praktis.</p>
+      <a href="#/doctors" class="btn btn-primary">Cari Dokter</a>
+    </div>
+
+    <h3 style="margin-top:20px">Dokter Rekomendasi</h3>
+    <div class="grid grid-3" id="rec"></div>
+  `;
+  const rec=$("#rec");
+  doctors.forEach(d=>{
+    rec.innerHTML+=`
+      <div class="card">
+        <strong>${d.name}</strong><br>
+        <span class="muted">${d.specialty} • ⭐${d.rating}</span>
+        <p>${d.bio}</p>
+        <a href="#/doctor/${d.id}">Lihat Profil</a>
+      </div>
+    `;
+  });
+}
+
+function about(){
+  app.innerHTML=`<div class="card"><h2>Tentang</h2><p>Platform konsultasi online.</p></div>`;
+}
+
+function listDoctors(){
+  app.innerHTML=`<h2>Daftar Dokter</h2><div class="grid grid-3" id="list"></div>`;
+  const list=$("#list");
+  doctors.forEach(d=>{
+    list.innerHTML+=`
+      <div class="card">
+        <strong>${d.name}</strong><br>
+        <span class="muted">${d.specialty}</span>
+        <p>${d.bio}</p>
+        <a href="#/doctor/${d.id}">Profil</a> | 
+        <a href="#/booking/${d.id}">Booking</a>
+      </div>
+    `;
+  });
+}
+
+function doctorProfile(id){
+  const d = doctors.find(x=>x.id===id);
+  app.innerHTML=`
+    <div class="card">
+      <h2>${d.name}</h2>
+      <p class="muted">${d.specialty} • ⭐${d.rating}</p>
+      <p>${d.bio}</p>
+      <a class="btn btn-primary" href="#/booking/${d.id}">Booking</a>
+      <a class="btn btn-ghost" href="#/chat/${d.id}">Chat</a>
+      <a class="btn btn-ghost" href="#/video/${d.id}">Video Call</a>
+    </div>`;
+}
+
+function login(){
+  app.innerHTML=`
+    <div class="card" style="max-width:400px;margin:auto">
+      <h3>Login</h3>
+      <form id="lf">
+        <input id="nm" placeholder="Nama">
+        <input id="em" placeholder="Email">
+        <input id="pw" placeholder="Password" type="password">
+        <button class="btn btn-primary" type="submit">Masuk</button>
+      </form>
+    </div>`;
+  $("#lf").onsubmit=e=>{
+    e.preventDefault();
+    const name=$("#nm").value || "Pengguna";
+    const email=$("#em").value;
+    if(!email) return alert("Isi email!");
+    setUser({name,email});
+    location.hash="#/dashboard";
+  };
+}
+
+function dashboard(){
+  const u=getUser();
+  if(!u) return location.hash="#/login";
+  app.innerHTML=`
+    <div class="card">
+      <h2>Halo, ${u.name}</h2>
+      <div class="grid" style="margin-top:20px">
+        <div class="card"><h3>Riwayat Konsultasi</h3><p class="muted">Belum ada.</p></div>
+        <div class="card"><h3>E-Resep</h3><p class="muted">Belum tersedia.</p></div>
+      </div>
+    </div>`;
+}
+
+function booking(id){
+  const d=doctors.find(x=>x.id===id);
+  app.innerHTML=`
+    <div class="card" style="max-width:500px;margin:auto">
+      <h3>Booking ${d.name}</h3>
+      <form id="bf">
+        <input id="dt" type="datetime-local">
+        <textarea id="note" placeholder="Keluhan..."></textarea>
+        <button class="btn btn-primary">Kirim</button>
+      </form>
+    </div>`;
+  $("#bf").onsubmit=e=>{
+    e.preventDefault();
+    alert("Booking dikirim!");
+    location.hash="#/dashboard";
+  }
+}
+
+function chat(id){
+  const d=doctors.find(x=>x.id===id);
+  let msgs=[{from:"doc",text:"Halo, saya "+d.name,time:Date()}];
+
+  app.innerHTML=`
+    <div class="card" style="max-width:600px;margin:auto">
+      <h3>Chat dengan ${d.name}</h3>
+      <div class="chat-box" id="cw"></div>
+      <div style="display:flex;gap:10px;margin-top:10px">
+        <input id="ci" placeholder="Pesan...">
+        <button class="btn btn-primary" id="cs">Kirim</button>
+      </div>
+    </div>
+  `;
+
+  const cw=$("#cw");
+  function draw(){
+    cw.innerHTML="";
+    msgs.forEach(m=>{
+      cw.innerHTML+=`<div class="msg ${m.from}">${m.text}<div class="muted" style="font-size:12px">${m.time}</div></div>`;
+    });
+  }
+  draw();
+
+  $("#cs").onclick=()=>{
+    const t=$("#ci").value.trim();
+    if(!t) return;
+    msgs.push({from:"user",text:t,time:new Date().toLocaleTimeString()});
+    $("#ci").value="";
+    draw();
+    setTimeout(()=>{
+      msgs.push({from:"doc",text:"Pesan diterima",time:new Date().toLocaleTimeString()});
+      draw();
+    },800);
+  };
+}
+
+function video(id){
+  const d=doctors.find(x=>x.id===id);
+  app.innerHTML=`
+    <div class="card">
+      <h3>Video Call ${d.name}</h3>
+      <p class="muted">Fitur belum aktif.</p>
+    </div>`;
+}
+
+/* ROUTER */
+function router(){
+  const h=location.hash.slice(2).split("/");
+  if(!h[0]) return home();
+  if(h[0]=="about") return about();
+  if(h[0]=="doctors") return listDoctors();
+  if(h[0]=="doctor") return doctorProfile(h[1]);
+  if(h[0]=="login") return login();
+  if(h[0]=="dashboard") return dashboard();
+  if(h[0]=="booking") return booking(h[1]);
+  if(h[0]=="chat") return chat(h[1]);
+  if(h[0]=="video") return video(h[1]);
+  app.innerHTML="<h2>404 Halaman tidak ditemukan</h2>";
+}
+
+window.onhashchange=router;
+renderHeader();
+router();
+</script>
+
+</body>
+</html>
