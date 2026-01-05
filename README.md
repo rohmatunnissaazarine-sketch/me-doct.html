@@ -4,9 +4,7 @@ MeDoct adalah website konsultasi kesehatan online berbasis HTML, CSS, dan JavaSc
 
 Website ini dibuat sebagai **prototype akademik** untuk menggambarkan konsep layanan kesehatan digital yang mudah diakses dan efisien.
 
----
-
-## 🚀 Fitur Utama
+Fitur Utama
 - Halaman Home
 - Daftar Dokter
 - Profil Dokter
@@ -15,35 +13,25 @@ Website ini dibuat sebagai **prototype akademik** untuk menggambarkan konsep lay
 - Chat Dokter (simulasi)
 - Video Call (placeholder)
 
----
-
-## 🛠 Teknologi yang Digunakan
+Teknologi yang Digunakan
 - HTML
 - CSS
 - JavaScript
 - LocalStorage (untuk simulasi login)
 
----
-
-## ▶️ Cara Menjalankan Secara Lokal
+Cara Menjalankan Secara Lokal
 1. Download atau clone repository ini
 2. Buka file `index.html`
 3. Jalankan dengan browser (Chrome / Edge / Firefox)
 
----
-
-## 🌐 Hosting
+Hosting
 Website ini di-host menggunakan **GitHub Pages** dan dapat diakses secara online melalui link repository.
 
----
-
-## 📌 Catatan
+Catatan
 - Website ini bersifat **static prototype**
 - Tidak terhubung dengan database atau server backend
 - Digunakan untuk keperluan pembelajaran dan tugas
 
----
-
-## 👩‍⚕️👨‍⚕️ Author
+Author
 Kelompok / Mahasiswa  
 Proyek Website MeDoct
